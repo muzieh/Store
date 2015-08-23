@@ -11,19 +11,13 @@ namespace StoreBo
 
 		public Promotion()
 		{
-
 		}
 
 		
-		public decimal GetPrice(List<Product> productsToCalculate)
-		{
-			var productsWithGroups = productsToCalculate.GroupBy(p => p.Id).Select(p => new {ProductId = p.Key, ProductCount = p.Count()}).Where(p => p.ProductCount > 3).ToList();
-			foreach(var group in productsWithGroups)
-			{
+        public void GetPrice(IList<CartItem> itemsToPrice)
+        {
+            throw new NotImplementedException();
+        }
 
-			}
-
-
-		}
 	}
 }

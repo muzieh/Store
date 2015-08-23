@@ -8,30 +8,30 @@ using Xunit;
 
 namespace TestsStoreBo
 {
-	public class TestsCart
+	public class TestsCart : IDisposable
 	{
-		[Fact]
-		public void GetProduct_EmptyList_EmptyList()
-		{
-			var cart = new Cart();
-			var productsInCart = cart.GetProducts();
-			Assert.Equal(0, productsInCart.Count);
-		}
+        private Cart cart;
+        public TestsCart()
+        {
+            cart = new Cart();
+        }
+        public void Dispose()
+        {
+            cart = null;
+        }
 
-		[Fact]
-		public void AddProduct_OneProduct_OneReturns()
+        [Fact]
+        public void AddProduct_OneProduct_OneReturns()
 		{
-			var cart = new Cart();
 			cart.AddProduct(new Product() {Id = 1, Name="Cookies"});
-			var productsInCart = cart.GetProducts();
+			var productsInCart = cart.Items;
 			Assert.Equal(1, productsInCart.Count);
-			Assert.Equal(1, productsInCart[0].Id);
+			Assert.Equal(1, productsInCart[0].ProductId);
 		}
 
 		[Fact]
 		public void GetPrice_EmptyCart_Zero()
 		{
-			var cart = new Cart();
 			var price = cart.GetPrice();
 			Assert.Equal(0m, price);
 		}
@@ -39,7 +39,6 @@ namespace TestsStoreBo
 		[Fact]
 		public void GetPrice_OneProduct_Price()
 		{
-			var cart = new Cart();
 			cart.AddProduct(new Product() {
 				Id = 1,
 				Name = "Cookies",
@@ -53,7 +52,6 @@ namespace TestsStoreBo
 		[Fact]
 		public void GetPrice_TwoProducts_Price()
 		{
-			var cart = new Cart();
 			cart.AddProduct(new Product() {
 				Id = 1,
 				Name = "Cookies",
@@ -69,5 +67,41 @@ namespace TestsStoreBo
 			var price = cart.GetPrice();
 			Assert.Equal((10.43m + 4.03m), price);
 		}
+
+
+        [Fact]
+        public void NewCart_CartItemsList_NotEmpty()
+        {
+            Assert.NotNull(cart.Items);
+        }
+
+        [Fact]
+        public void Add_OneProduct_CartItemCreated()
+        {
+            var product = new Product() { Id = 1 };
+            cart.AddProduct(product);
+            Assert.Equal(product.Id, cart.Items.Where(cartItem => cartItem.ProductId == product.Id).FirstOrDefault().ProductId);
+        }
+
+        [Fact]
+        public void Add_WeightedProduct_WeighSame()
+        {
+            var product = new Product() { Id = 3, Price = 0.99m };
+            cart.AddProductWithWeight(product, 1.43m);
+            var cartItem = cart.Items.First(ci => ci.ProductId == 3);
+            Assert.IsType<WeightCartItem>(cartItem);
+            Assert.Equal(1.43m, ((WeightCartItem)cartItem).Weight);
+        }
+
+        [Fact]
+        public void Add_WeightedProduct_PriceRounded()
+        {
+            var product = new Product() { Id = 3, Price = 0.99m };
+            cart.AddProductWithWeight(product, 1.43m);
+            var cartItem = cart.Items.First(ci => ci.ProductId == 3);
+            Assert.Equal(1.42m, cartItem.GetPrice());
+        }
+
+
 	}
 }

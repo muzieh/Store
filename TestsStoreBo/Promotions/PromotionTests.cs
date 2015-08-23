@@ -18,10 +18,15 @@ namespace TestsStoreBo.Promotions
 			Assert.Equal(24.2m, price);	
 		}
 
+        [Fact]
 		public void ThreeSameGetOneFree_ThreeSameInCart_PriceFor2()
 		{
 			var p = new Product() { Id = 1, Name = "chocolate", Price = 12.1m};
-			var c = new Cart();
+            var promotions = new Promotion[] {
+                new Promotion()
+            };
+
+			var c = new Cart(promotions);
 			c.AddProduct(p);
 			c.AddProduct(p);
 			c.AddProduct(p);
